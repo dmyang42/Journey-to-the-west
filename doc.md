@@ -17,6 +17,24 @@
 </br></br></br>
 
 
+
+
+
+## Game Walkthrough Video:
+
+:movie_camera: 朱紫山 : [https://youtu.be/tyTOYC27A0A](https://youtu.be/tyTOYC27A0A) 
+
+:movie_camera: 火焰山 : [https://youtu.be/1ok4zJkqKFY](https://youtu.be/1ok4zJkqKFY)
+
+:movie_camera: 石室1 : [https://youtu.be/zdzxLfE5eOk](https://youtu.be/zdzxLfE5eOk)
+
+:movie_camera: 石室2 : [https://youtu.be/P3tv8qAg6Zg](https://youtu.be/P3tv8qAg6Zg)
+
+
+
+
+
+
 ## Modules function :
 
 
@@ -103,11 +121,152 @@ With this method, our hero can hide behind a pillar when he is at the back of th
 
 
 
+### 💡 Event
+
+I think this is the most interesting module in our game.
+
+To realize events in maps we introduces one module and two types of JSON files:
+
+**[Handler.js](src/MyGame/Events/Handler.js) / [zhuzishan-event-index.json](assets/map/zhuzishan/zhuzishan-event-index.json) / [zhuzishan-event.json](assets/map/zhuzishan/zhuzishan-event.json)**
+
+(zhuzishan is just an instant, each map includes a event file and a event-index file)
+
+In **Handler** there is only one method : `GameEvents.handle = function (e, game)` (GameEvents is class name), **e** is one of the value in event JSON file, this will be explained later.
+
+This function will be called when certain piles are triggered. Based on current map, sequence number of the triggered pile,  **handle** will look into the two JSON files and figure out what is going on. After acknowledging  the type of event that has been triggered, **handle** will go through a **switch** function and will make some changes. The contents in **switch** are as below:
+
+```javascript
+ switch (e[1]) {
+
+        case "Go":
+        return function(game) {
+            game.nextScene = getScene(e[2]);
+            gEngine.GameLoop.stop();
+            document.mEventMutex = false;
+        }
+        break;
+
+        case "Show":
+        ...
+        break;
+
+        case "Battle":
+        ...
+        
+        ...
+        
+        default:
+        return null;
+    }
+```
+
+Now you can regard **e[1]** as a tag indicating the type of a event, and **e[2] e[3] ...** are attributes that fully explained the event. For example, if **e[1] == 'Go' ** , and **e[2]** should be the name of next scene. These are all stored in the two JSON files.
+
+So, now I am going to show the structure of these two JSON files:
+
+```json
+{
+    "986": "xiyijing",
+   	...
+   	"1159": "go_zhuzishanjiao",
+    "1160": "go_zhuzishanjiao",
+	...
+}
+```
+
+As you can see, the key-value pair in this JSON file is the numbers of special piles and their tags, or names. We do this for the reason that 
+
+```json
+{
+    "xiyijing": [
+    			["J",
+					"Show",	[
+						["zhuzishan-xiyijing", "蜥蜴精：什么人敢吵得大爷我没的清闲？！"],
+						["sunwukong", "孙悟空：原来就是个蜥蜴成了精，不知道自己几斤几两，\n趁着朱紫国国王病危就兴风作浪。看俺老孙怎么教训你！"],
+						["zhubajie", "猪八戒：大师兄等等我！"],
+						["tangseng", "唐僧：悟空，切勿下杀手啊。"]
+					]
+				],
+				[null,
+					"Battle", ["zhuzishan", "zhuzishan-xiyijing"]
+				],
+				[null,
+					"Win",
+						[null,
+							"Show", [
+								...
+							]
+						]
+					],
+				[null,
+					"Win",
+						[null,
+							"Get", ["golden_lotus"]
+						]
+				],
+			false, 0],
+	...
+    
+	"go_zhuzishanjiao": [[null,
+				"Check", "Golden Lotus",
+					[null, "Go", "zhuzishanjiao"],
+					[null, "Show", [["tangseng", "且慢，金莲还未替那位小姑娘找到。"]]]
+				],
+			[null,
+				"Check", "Golden Lotus",
+				[null, "Go", "zhuzishanjiao"],
+				[null, "Back"]
+			],
+			true, 0],
+ 	...
+}
+```
+
+
+
 ### :monkey_face: Hero
 
+Hero module briefly relates to two parts: The first part is about basic setting of a hero (his movements and status), and the second part is about his skills in the combat.
 
 
-###  :bulb: Event
+
+To begin with, how we draw our heros? Though we have learnt how do make a hero move at class (with sprite sheets it can be easily done), in order to make this work more efficient, we again use a JSON file to store a hero's movement, it may seems like this :
+
+```json
+{
+    "width": 256,
+    "height": 512,
+    "Down": {
+        "Stand": [[99, 163], [155, 86]],
+        "Walk": [
+            [[11, 163], [69, 87]],
+            [[185, 163], [243, 87]]
+        ]
+    },
+    "Left": {
+        "Stand": [[104, 249], [152, 172]],
+        "Walk": [
+            [[18, 249], [66, 173]],
+            [[190, 249], [237, 173]]
+        ]
+    },
+    ... ...
+}
+```
+
+And the sprite sheet related to this JSON file is :
+
+![sprite sheet](./assets/hero/tangseng_walk.png)
+
+Since we have three heros and many NPCs, hardcode method is obviously not practical, and use JSON files to standarlize such work is quite necessary.
+
+
+
+Similarly, heros' attributes, like original skills and HP / VP are also stored in a JSON file called [character_info.json](./assets/hero/character_info.json). 
+
+
+
+Finally, about the combat in our game, we introduce three modules [Combat.js](src/MyGame/Combat/Combat.js) , [Action.js](src/MyGame/Combat/Action.js)and [HPBar.js](src/MyGame/Combat/HPBar.js) . **Combat** is the core module in combat scene, it contains methods that make changes to heros' and enemies' status, so that a combat can then actually happen. It also includes a special equation to calculate damage, named `function _damageFoumula(attack, defense)`. With this method the damage is no longer static (but will not be too exaggerated). **Action** is a module manipulated by **Combat**, it simply contains the animation of heros in combat scene, which is quite primitive by now. **HPBar** module is another module that does drawing on the canvas, it will sychronize the HP / VP Bar with heros' status in the combat.
 
 
 
