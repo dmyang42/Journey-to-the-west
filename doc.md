@@ -2,12 +2,19 @@
 
 **Yang Daming 2018-9**
 
-
-
-[TOC]
-
+</br></br></br>
 :shield: :shinto_shrine: :monkey_face: :video_game: :pig_nose::mountain::crossed_swords: 
+</br></br></br>
+- [Document of **Jorney-to-the-west** source code](#document-of-jorney-to-the-west-source-code)
+  - [Modules function :](#modules-function)
+    - [:deciduous_tree: Map](#deciduoustree-map)
+    - [:monkey_face: Hero](#monkeyface-hero)
+    - [:bulb: Event](#bulb-event)
+    - [:video_game: System](#videogame-system)
 
+</br></br></br>
+:shield: :shinto_shrine: :monkey_face: :video_game: :pig_nose::mountain::crossed_swords: 
+</br></br></br>
 
 
 ## Modules function :
