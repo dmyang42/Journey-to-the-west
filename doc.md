@@ -6,11 +6,12 @@
 :shield: :shinto_shrine: :monkey_face: :video_game: :pig_nose::mountain::crossed_swords: 
 </br></br></br>
 - [Document of **Jorney-to-the-west** source code](#document-of-jorney-to-the-west-source-code)
-  - [Modules function :](#modules-function)
-    - [:deciduous_tree: Map](#deciduoustree-map)
-    - [:monkey_face: Hero](#monkeyface-hero)
-    - [:bulb: Event](#bulb-event)
-    - [:video_game: System](#videogame-system)
+    - [Game Walkthrough Video:](#game-walkthrough-video)
+    - [Modules function :](#modules-function)
+        - [:deciduous_tree: Map](#deciduoustree-map)
+        - [💡 Event](#%F0%9F%92%A1-event)
+        - [:monkey_face: Hero](#monkeyface-hero)
+        - [:video_game: System](#videogame-system)
 
 </br></br></br>
 :shield: :shinto_shrine: :monkey_face: :video_game: :pig_nose::mountain::crossed_swords: 
@@ -167,14 +168,14 @@ So, now I am going to show the structure of these two JSON files:
 ```json
 {
     "986": "xiyijing",
-   	...
-   	"1159": "go_zhuzishanjiao",
+    ...
+    "1159": "go_zhuzishanjiao",
     "1160": "go_zhuzishanjiao",
-	...
+    ...
 }
 ```
-
-As you can see, the key-value pair in this JSON file is the numbers of special piles and their tags, or names. We do this for the reason that 
+Key in first file: serial number of special pile
+Value in first file: event name
 
 ```json
 {
@@ -182,7 +183,7 @@ As you can see, the key-value pair in this JSON file is the numbers of special p
     			["J",
 					"Show",	[
 						["zhuzishan-xiyijing", "蜥蜴精：什么人敢吵得大爷我没的清闲？！"],
-						["sunwukong", "孙悟空：原来就是个蜥蜴成了精，不知道自己几斤几两，\n趁着朱紫国国王病危就兴风作浪。看俺老孙怎么教训你！"],
+						["sunwukong", "孙悟空：原来就是个蜥蜴成了精，不知道自己......"],
 						["zhubajie", "猪八戒：大师兄等等我！"],
 						["tangseng", "唐僧：悟空，切勿下杀手啊。"]
 					]
@@ -222,6 +223,7 @@ As you can see, the key-value pair in this JSON file is the numbers of special p
 }
 ```
 
+As you can see, the key-value pair in this JSON file is the numbers of special piles and their tags, or names. That is to say, we seper
 
 
 ### :monkey_face: Hero
