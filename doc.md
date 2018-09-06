@@ -174,8 +174,8 @@ So, now I am going to show the structure of these two JSON files:
     ...
 }
 ```
-Key in first file: serial number of special pile
-Value in first file: event name
+**Key** in first file: serial number of special pile
+**Value** in first file: event name
 
 ```json
 {
@@ -223,7 +223,52 @@ Value in first file: event name
 }
 ```
 
-As you can see, the key-value pair in this JSON file is the numbers of special piles and their tags, or names. That is to say, we seper
+**Key** in second file: event name
+**Value** in second file: handle array of an event
+
+
+
+As you can see, we seperate certain pile from its event, making an event file easier to parse. It can also help us avoid problems like triggering an event for several times (There will be an example).
+
+Now, please recall the **handle** module, and you can see now we use a handle array to describe an event, like **"go_zhuzishanjiao"** in the above :
+
+```json
+"go_zhuzishanjiao": [[null,
+				"Check", "Golden Lotus",
+					[null, "Go", "zhuzishanjiao"],
+					[null, "Show", [["tangseng", "且慢，金莲还未替那位小姑娘找到。"]]]
+				],
+			[null,
+				"Check", "Golden Lotus",
+				[null, "Go", "zhuzishanjiao"],
+				[null, "Back"]
+			],
+			true, 0]
+```
+
+There are four kinds of handles in this event, "Check", "Go", "Show", and "Back". Each handle has a special designed format like : `[null / 'J', handle_name, **handle_attributes]` . The first parameter, with value null or 'J', tells us whether we have to interact with the pile to trigger the event. We have to press 'J' to talk with an NPC, but we will automatically run into a fight or a scene in main plot. The second parameter, the name of the handle, can help the game go back to **[Handler.js](src/MyGame/Events/Handler.js)** and know what to do next. For example, this is handle **"Show"** in **[Handler.js](src/MyGame/Events/Handler.js)** (recall **e[1]** == "Show" here, and now you understand **e** is what we read from the JSON file above) :
+
+```json
+case "Show":
+return function(game) {
+    var i;
+    for (i = 0; i < e[2].length; ++i)
+        document.mMsgQueue.push(e[2][i]);
+}
+break;
+```
+
+The game will then find **e[2]**, in `[null, "Show", [["tangseng", "且慢，金莲还未替那位小姑娘找到。"]]]` is 
+
+`[["tangseng", "且慢，金莲还未替那位小姑娘找到。"]]` . And the engine will then put this message array(normally there will be more than one message. In this example, unfortunately, there is only one lol) onto the screen with `document.mMsgQueue.push(e[2][i])`, a method in our dialogue system.
+
+And the last two parmeters indicate if the event can happen for mutiple times.
+
+Finally, I want to describe a special case that may cause some problems if we don't seperate the handle array from the number of a pile.
+
+Imagine there is a monster, and when you step into the eight piles arount it you will automatically be dragged into a fight. If we use pair like **"12": [null, "Fight" ...] , "13": [null, "Fight" ...]** , though each pile can trigger the event for only one time, "Fight" in each pile are independent. Players may have to fight a monster for many times before he can proceed his adventure, which is clearly a bug. So, we kind of turn the event into a singlton. With this technique, we can prevent such bug from happenning.
+
+
 
 
 ### :monkey_face: Hero
@@ -274,5 +319,16 @@ Finally, about the combat in our game, we introduce three modules [Combat.js](sr
 
 ### :video_game: System
 
+We have the following system in our games :
 
+- **Combat system** : a new scene
+- **Weapon system** : a viewport, you can see the equipped weapons and armours of each heros, and can check the status, (including HP/VP/defense...) of each heros.
+- **Items system** : a viewport, you can use potions, or equip heros with armours and weapons.
+- **Dialogue system** : a css window, show dialogue
+- **Status system** : a viewport, you can see heros HP and VP here. It can also be shown in **Combat** so that players can be aware of each heros status in time.
+- **Map system** : two maps, one in the up right corner which will not block players' sights, another can be shown in the middle of your screen, which is useful for player to stop and check.
+
+Each system is a viewport(deleting two lines 217, 220 from [Camera.js](./src/Engine/Cameras/Camera.js) and setting alpha to 0 can make the background of the viewport transparent) or window(written in css), so that systems like dialogue, status, mao, weapon and potion like look like a menu bar.
+
+With all these systems, we believe we have made our game a prototype of an RPG game.
 
